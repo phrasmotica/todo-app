@@ -82,43 +82,42 @@ const deleteExistingItem = (index: number) => {
         <div v-if="items.length <= 0">No items to show!</div>
 
         <div v-else
-            class="form-check d-flex align-items-center"
-            :class="[
-                idx > 0 && 'pt-2',
-                idx > 0 && mode === Mode.View && 'border-top border-dark border-opacity-10'
-            ]"
+            class="todo-item ps-2 my-1"
+            :class="item.done && mode === Mode.View && 'completed'"
             v-for="(item, idx) in itemsToShow">
-            <input
-                :id="'input-' + idx"
-                class="form-check-input mb-1 flex-shrink-0"
-                type="checkbox"
-                :disabled="mode === Mode.Edit"
-                v-model="item.done"
-                @change="(e: any) => check(idx, e.target.checked)" />
+            <div class="form-check d-flex align-items-center">
+                <input
+                    :id="'input-' + idx"
+                    class="form-check-input mb-1 flex-shrink-0"
+                    type="checkbox"
+                    :disabled="mode === Mode.Edit"
+                    v-model="item.done"
+                    @change="(e: any) => check(idx, e.target.checked)" />
 
-            <label v-if="mode !== Mode.Edit" class="form-control-plaintext ms-2" :for="'input-' + idx">
-                {{ item.label }}
-            </label>
+                <label v-if="mode !== Mode.Edit" class="form-control-plaintext ms-2" :for="'input-' + idx">
+                    {{ item.label }}
+                </label>
 
-            <input v-else-if="mode === Mode.Edit"
-                class="form-control ms-2"
-                v-model="item.label"
-                @change="(e: any) => setLabel(idx, e.target.value)" />
+                <input v-else-if="mode === Mode.Edit"
+                    class="form-control ms-2"
+                    v-model="item.label"
+                    @change="(e: any) => setLabel(idx, e.target.value)" />
 
-            <div v-if="mode === Mode.Edit" class="btn-group ms-2" role="group">
-                <button class="btn btn-warning" :disabled="idx <= 0" @click="swap(idx, idx - 1)">
-                    <i class="bi bi-arrow-up"></i>
-                </button>
+                <div v-if="mode === Mode.Edit" class="btn-group ms-2" role="group">
+                    <button class="btn btn-warning" :disabled="idx <= 0" @click="swap(idx, idx - 1)">
+                        <i class="bi bi-arrow-up"></i>
+                    </button>
 
-                <button class="btn btn-warning" :disabled="idx >= itemsToShow.length - 1" @click="swap(idx, idx + 1)">
-                    <i class="bi bi-arrow-down"></i>
-                </button>
-            </div>
+                    <button class="btn btn-warning" :disabled="idx >= itemsToShow.length - 1" @click="swap(idx, idx + 1)">
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
+                </div>
 
-            <div v-if="mode === Mode.Edit" class="ms-2">
-                <button class="btn btn-danger" @click="deleteExistingItem(idx)">
-                    <i class="bi bi-x-lg"></i>
-                </button>
+                <div v-if="mode === Mode.Edit" class="ms-2">
+                    <button class="btn btn-danger" @click="deleteExistingItem(idx)">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -129,3 +128,13 @@ const deleteExistingItem = (index: number) => {
         </div>
     </div>
 </template>
+
+<style scoped lang="css">
+.todo-item {
+    border-radius: 0.5em;
+}
+
+.todo-item.completed {
+    background-color: rgb(147, 255, 147);
+}
+</style>
