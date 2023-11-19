@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-interface Item { label: string, done: boolean }
+import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel } from './data'
 
 enum Mode { View, Add, Edit }
 
-const items = ref([] as Item[])
+const items = ref(getItems())
 const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
 const completedCount = computed(() => items.value.filter(i => i.done).length)
 
@@ -24,29 +24,25 @@ const addNewItem = (e: Event) => {
     e.preventDefault()
 
     if (newItemLabel.value) {
-        items.value = [{
-            label: newItemLabel.value.trim(),
-            done: false,
-        }, ...items.value]
-
+        items.value = addItem(newItemLabel.value)
         newItemLabel.value = ""
     }
 }
 
-const reorder = (oldIndex: number, newIndex: number) => {
-    const newItems = [...items.value] as Item[]
-
-    [newItems[oldIndex], newItems[newIndex]] = [newItems[newIndex], newItems[oldIndex]]
-
-    items.value = newItems
+const check = (index: number, checked: boolean) => {
+    items.value = checkItem(index, checked)
 }
 
-const deleteItem = (index: number) => {
-    const newItems = [...items.value] as Item[]
+const setLabel = (index: number, label: string) => {
+    items.value = setItemLabel(index, label)
+}
 
-    newItems.splice(index, 1)
+const swap = (oldIndex: number, newIndex: number) => {
+    items.value = swapItems(oldIndex, newIndex)
+}
 
-    items.value = newItems
+const deleteExistingItem = (index: number) => {
+    items.value = deleteItem(index)
 }
 </script>
 
@@ -97,26 +93,30 @@ const deleteItem = (index: number) => {
                 class="form-check-input mb-1 flex-shrink-0"
                 type="checkbox"
                 :disabled="mode === Mode.Edit"
-                v-model="item.done" />
+                v-model="item.done"
+                @change="(e: any) => check(idx, e.target.checked)" />
 
             <label v-if="mode !== Mode.Edit" class="form-control-plaintext ms-2" :for="'input-' + idx">
                 {{ item.label }}
             </label>
 
-            <input v-else-if="mode === Mode.Edit" class="form-control ms-2" v-model="item.label" />
+            <input v-else-if="mode === Mode.Edit"
+                class="form-control ms-2"
+                v-model="item.label"
+                @change="(e: any) => setLabel(idx, e.target.value)" />
 
             <div v-if="mode === Mode.Edit" class="btn-group ms-2" role="group">
-                <button class="btn btn-warning" :disabled="idx <= 0" @click="reorder(idx, idx - 1)">
+                <button class="btn btn-warning" :disabled="idx <= 0" @click="swap(idx, idx - 1)">
                     <i class="bi bi-arrow-up"></i>
                 </button>
 
-                <button class="btn btn-warning" :disabled="idx >= itemsToShow.length - 1" @click="reorder(idx, idx + 1)">
+                <button class="btn btn-warning" :disabled="idx >= itemsToShow.length - 1" @click="swap(idx, idx + 1)">
                     <i class="bi bi-arrow-down"></i>
                 </button>
             </div>
 
             <div v-if="mode === Mode.Edit" class="ms-2">
-                <button class="btn btn-danger" @click="deleteItem(idx)">
+                <button class="btn btn-danger" @click="deleteExistingItem(idx)">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
