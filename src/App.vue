@@ -40,6 +40,14 @@ const reorder = (oldIndex: number, newIndex: number) => {
 
     items.value = newItems
 }
+
+const deleteItem = (index: number) => {
+    const newItems = [...items.value] as Item[]
+
+    newItems.splice(index, 1)
+
+    items.value = newItems
+}
 </script>
 
 <template>
@@ -104,6 +112,12 @@ const reorder = (oldIndex: number, newIndex: number) => {
 
                 <button class="btn btn-warning" :disabled="idx >= itemsToShow.length - 1" @click="reorder(idx, idx + 1)">
                     <i class="bi bi-arrow-down"></i>
+                </button>
+            </div>
+
+            <div v-if="mode === Mode.Edit" class="ms-2">
+                <button class="btn btn-danger" @click="deleteItem(idx)">
+                    <i class="bi bi-x-lg"></i>
                 </button>
             </div>
         </div>
