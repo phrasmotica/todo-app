@@ -20,9 +20,7 @@ watch(addInput, () => {
     addInput.value?.focus()
 })
 
-const addNewItem = (e: Event) => {
-    e.preventDefault()
-
+const addNewItem = () => {
     if (newItemLabel.value) {
         items.value = addItem(newItemLabel.value)
         newItemLabel.value = ""
@@ -63,7 +61,7 @@ const deleteExistingItem = (index: number) => {
         </div>
 
         <div v-else-if="mode === Mode.Add">
-            <form @submit="addNewItem">
+            <form @submit.prevent="addNewItem">
                 <input class="mb-2 form-control" ref="addInput" placeholder="New item" v-model="newItemLabel" />
 
                 <div class="btn-group w-100" role="group">
@@ -83,7 +81,7 @@ const deleteExistingItem = (index: number) => {
 
         <div v-else
             class="todo-item ps-2 my-1"
-            :class="item.done && mode === Mode.View && 'completed'"
+            :class="item.done && mode !== Mode.Edit && 'completed'"
             v-for="(item, idx) in itemsToShow">
             <div class="form-check d-flex align-items-center">
                 <input
