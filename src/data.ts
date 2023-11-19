@@ -1,4 +1,6 @@
-export interface Item { label: string, done: boolean }
+import { v4 as uuidv4 } from "uuid"
+
+import { Item, Priority } from "./types"
 
 export const getItems = () => (JSON.parse(localStorage.getItem("items")) || []) as Item[]
 
@@ -6,11 +8,13 @@ const setItems = (items: Item[]) => {
     localStorage.setItem("items", JSON.stringify(items))
 }
 
-export const addItem = (label: string) => {
+export const addItem = (label: string, priority: Priority) => {
     const items = getItems()
 
     items.unshift({
+        id: uuidv4(),
         label,
+        priority,
         done: false,
     })
 
@@ -19,20 +23,20 @@ export const addItem = (label: string) => {
     return items
 }
 
-export const setItemLabel = (index: number, label: string) => {
+export const setItemLabel = (id: string, label: string) => {
     const items = getItems()
 
-    items[index].label = label
+    items.find(i => i.id === id).label = label
 
     setItems(items)
 
     return items
 }
 
-export const checkItem = (index: number, checked: boolean) => {
+export const checkItem = (id: string, checked: boolean) => {
     const items = getItems()
 
-    items[index].done = checked
+    items.find(i => i.id === id).done = checked
 
     setItems(items)
 
@@ -40,7 +44,7 @@ export const checkItem = (index: number, checked: boolean) => {
 }
 
 export const swapItems = (oldIndex: number, newIndex: number) => {
-    const items = getItems() as Item[]
+    const items = getItems();
 
     [items[oldIndex], items[newIndex]] = [items[newIndex], items[oldIndex]]
 
@@ -49,8 +53,9 @@ export const swapItems = (oldIndex: number, newIndex: number) => {
     return items
 }
 
-export const deleteItem = (index: number) => {
+export const deleteItem = (id: string) => {
     const items = getItems()
+    const index = items.findIndex(i => i.id === id)
 
     items.splice(index, 1)
 

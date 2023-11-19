@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue'
 import TodoItem from './TodoItem.vue'
 
 import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel } from './data'
-import { Mode } from './types'
+import { Mode, Priority } from './types'
 
 const items = ref(getItems())
 const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
@@ -12,6 +12,7 @@ const completedCount = computed(() => items.value.filter(i => i.done).length)
 
 const mode = ref(Mode.View)
 const newItemLabel = ref("")
+const newItemPriority = ref(Priority.Medium)
 
 const hideCompleted = ref(false)
 
@@ -23,25 +24,25 @@ watch(addInput, () => {
 
 const addNewItem = () => {
     if (newItemLabel.value) {
-        items.value = addItem(newItemLabel.value)
+        items.value = addItem(newItemLabel.value, newItemPriority.value)
         newItemLabel.value = ""
     }
 }
 
-const check = (index: number, checked: boolean) => {
-    items.value = checkItem(index, checked)
+const check = (id: string, checked: boolean) => {
+    items.value = checkItem(id, checked)
 }
 
-const setLabel = (index: number, label: string) => {
-    items.value = setItemLabel(index, label)
+const setLabel = (id: string, label: string) => {
+    items.value = setItemLabel(id, label)
 }
 
 const swap = (oldIndex: number, newIndex: number) => {
     items.value = swapItems(oldIndex, newIndex)
 }
 
-const deleteExistingItem = (index: number) => {
-    items.value = deleteItem(index)
+const deleteExistingItem = (id: string) => {
+    items.value = deleteItem(id)
 }
 </script>
 
@@ -63,9 +64,19 @@ const deleteExistingItem = (index: number) => {
 
         <div v-else-if="mode === Mode.Add">
             <form @submit.prevent="addNewItem">
-                <input class="mb-2 form-control" ref="addInput" placeholder="New item" v-model="newItemLabel" />
+                <div class="row">
+                    <div class="col-9">
+                        <input class="form-control" ref="addInput" placeholder="New item" v-model="newItemLabel" />
+                    </div>
 
-                <div class="btn-group w-100" role="group">
+                    <div class="col-3">
+                        <select class="form-select" v-model="newItemPriority">
+                            <option v-for="p in Priority" :value="p">{{ p }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group w-100 mt-2" role="group">
                     <button class="btn btn-success" :disabled="!newItemLabel" type="submit">Add</button>
                     <button class="btn btn-danger" type="reset" @click="mode = Mode.View">Cancel</button>
                 </div>
@@ -86,11 +97,11 @@ const deleteExistingItem = (index: number) => {
                 :item="item"
                 :index="idx"
                 :total="itemsToShow.length"
-                @check="c => check(idx, c)"
-                @setLabel="l => setLabel(idx, l)"
+                @check="c => check(item.id, c)"
+                @setLabel="l => setLabel(item.id, l)"
                 @moveUp="swap(idx, idx - 1)"
                 @moveDown="swap(idx, idx + 1)"
-                @delete="deleteExistingItem(idx)" />
+                @delete="deleteExistingItem(item.id)" />
         </div>
 
         <div v-if="hideCompleted"
@@ -100,13 +111,3 @@ const deleteExistingItem = (index: number) => {
         </div>
     </div>
 </template>
-
-<style scoped lang="css">
-.todo-item {
-    border-radius: 0.5em;
-}
-
-.todo-item.completed {
-    background-color: rgb(147, 255, 147);
-}
-</style>

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { Item } from './data'
-import { Mode } from './types'
+import { Item, Mode } from './types'
 
 const props = defineProps<{
     mode: Mode
@@ -21,27 +20,22 @@ const emit = defineEmits<{
 
 const isEditMode = computed(() => props.mode === Mode.Edit)
 
-const id = 'input-' + props.index
+const id = 'input-' + props.item.id
 </script>
 
 <template>
-    <div class="todo-item ps-2 my-1" :class="props.item.done && !isEditMode && 'completed'">
+    <div class="todo-item ps-2 my-1" :class="!isEditMode && props.item.priority">
         <div class="form-check d-flex align-items-center">
-            <input
-                :id="id"
-                class="form-check-input mb-1 flex-shrink-0"
-                type="checkbox"
-                :disabled="isEditMode"
-                v-model="props.item.done"
-                @change="(e: any) => emit('check', e.target.checked)" />
+            <input :id="id" class="form-check-input mb-1 flex-shrink-0" type="checkbox" :disabled="isEditMode"
+                v-model="props.item.done" @change="(e: any) => emit('check', e.target.checked)" />
 
-            <label v-if="!isEditMode" class="form-control-plaintext ms-2" :for="id">
+            <label v-if="!isEditMode"
+                :for="id"
+                class="form-control-plaintext ms-2">
                 {{ props.item.label }}
             </label>
 
-            <input v-else-if="isEditMode"
-                class="form-control ms-2"
-                v-model="props.item.label"
+            <input v-else-if="isEditMode" class="form-control ms-2" v-model="props.item.label"
                 @change="(e: any) => emit('setLabel', e.target.value)" />
 
             <div v-if="isEditMode" class="btn-group ms-2" role="group">
@@ -62,3 +56,21 @@ const id = 'input-' + props.index
         </div>
     </div>
 </template>
+
+<style scoped lang="css">
+.todo-item {
+    border-radius: 0.5em;
+}
+
+.todo-item.high {
+    background-color: rgb(255, 147, 147, 0.8);
+}
+
+.todo-item.medium {
+    background-color: rgb(255, 244, 147, 0.8);
+}
+
+.todo-item.low {
+    background-color: rgb(147, 255, 147, 0.8);
+}
+</style>
