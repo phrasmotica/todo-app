@@ -32,6 +32,14 @@ const addNewItem = (e: Event) => {
         newItemLabel.value = ""
     }
 }
+
+const reorder = (oldIndex: number, newIndex: number) => {
+    const newItems = [...items.value] as Item[]
+
+    [newItems[oldIndex], newItems[newIndex]] = [newItems[newIndex], newItems[oldIndex]]
+
+    items.value = newItems
+}
 </script>
 
 <template>
@@ -78,7 +86,7 @@ const addNewItem = (e: Event) => {
             v-for="(item, idx) in itemsToShow">
             <input
                 :id="'input-' + idx"
-                class="form-check-input mb-1"
+                class="form-check-input mb-1 flex-shrink-0"
                 type="checkbox"
                 :disabled="mode === Mode.Edit"
                 v-model="item.done" />
@@ -88,6 +96,16 @@ const addNewItem = (e: Event) => {
             </label>
 
             <input v-else-if="mode === Mode.Edit" class="form-control ms-2" v-model="item.label" />
+
+            <div v-if="mode === Mode.Edit" class="btn-group ms-2" role="group">
+                <button class="btn btn-warning" :disabled="idx <= 0" @click="reorder(idx, idx - 1)">
+                    <i class="bi bi-arrow-up"></i>
+                </button>
+
+                <button class="btn btn-warning" :disabled="idx >= itemsToShow.length - 1" @click="reorder(idx, idx + 1)">
+                    <i class="bi bi-arrow-down"></i>
+                </button>
+            </div>
         </div>
 
         <div v-if="hideCompleted"
