@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel } from './data'
+import TodoItem from './TodoItem.vue'
 
-enum Mode { View, Add, Edit }
+import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel } from './data'
+import { Mode } from './types'
 
 const items = ref(getItems())
 const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
@@ -79,44 +80,17 @@ const deleteExistingItem = (index: number) => {
     <div class="mt-2">
         <div v-if="items.length <= 0">No items to show!</div>
 
-        <div v-else
-            class="todo-item ps-2 my-1"
-            :class="item.done && mode !== Mode.Edit && 'completed'"
-            v-for="(item, idx) in itemsToShow">
-            <div class="form-check d-flex align-items-center">
-                <input
-                    :id="'input-' + idx"
-                    class="form-check-input mb-1 flex-shrink-0"
-                    type="checkbox"
-                    :disabled="mode === Mode.Edit"
-                    v-model="item.done"
-                    @change="(e: any) => check(idx, e.target.checked)" />
-
-                <label v-if="mode !== Mode.Edit" class="form-control-plaintext ms-2" :for="'input-' + idx">
-                    {{ item.label }}
-                </label>
-
-                <input v-else-if="mode === Mode.Edit"
-                    class="form-control ms-2"
-                    v-model="item.label"
-                    @change="(e: any) => setLabel(idx, e.target.value)" />
-
-                <div v-if="mode === Mode.Edit" class="btn-group ms-2" role="group">
-                    <button class="btn btn-warning" :disabled="idx <= 0" @click="swap(idx, idx - 1)">
-                        <i class="bi bi-arrow-up"></i>
-                    </button>
-
-                    <button class="btn btn-warning" :disabled="idx >= itemsToShow.length - 1" @click="swap(idx, idx + 1)">
-                        <i class="bi bi-arrow-down"></i>
-                    </button>
-                </div>
-
-                <div v-if="mode === Mode.Edit" class="ms-2">
-                    <button class="btn btn-danger" @click="deleteExistingItem(idx)">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
-            </div>
+        <div v-else>
+            <TodoItem v-for="(item, idx) in itemsToShow"
+                :mode="mode"
+                :item="item"
+                :index="idx"
+                :total="itemsToShow.length"
+                @check="c => check(idx, c)"
+                @setLabel="l => setLabel(idx, l)"
+                @moveUp="swap(idx, idx - 1)"
+                @moveDown="swap(idx, idx + 1)"
+                @delete="deleteExistingItem(idx)" />
         </div>
 
         <div v-if="hideCompleted"

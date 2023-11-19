@@ -1,4 +1,4 @@
-interface Item { label: string, done: boolean }
+export interface Item { label: string, done: boolean }
 
 export const getItems = () => (JSON.parse(localStorage.getItem("items")) || []) as Item[]
 
