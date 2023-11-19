@@ -3,11 +3,13 @@ import { computed, ref, watch } from 'vue'
 
 interface Item { label: string, done: boolean }
 
+enum Mode { View, Add, Edit }
+
 const items = ref([] as Item[])
 const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
 const completedCount = computed(() => items.value.filter(i => i.done).length)
 
-const isAddMode = ref(false)
+const mode = ref(Mode.View)
 const newItemLabel = ref("")
 
 const hideCompleted = ref(false)
@@ -43,31 +45,54 @@ const addNewItem = (e: Event) => {
     <hr />
 
     <div>
-        <div v-if="!isAddMode">
-            <button class="btn btn-primary w-100" @click="isAddMode = true">Add new item</button>
+        <div v-if="mode === Mode.View" class="btn-group w-100" role="group">
+            <button class="btn btn-primary" @click="mode = Mode.Add">Add new item</button>
+            <button class="btn btn-warning" :disabled="items.length <= 0" @click="mode = Mode.Edit">Edit items</button>
         </div>
 
-        <div v-else>
+        <div v-else-if="mode === Mode.Add">
             <form @submit="addNewItem">
                 <input class="mb-2 form-control" ref="addInput" placeholder="New item" v-model="newItemLabel" />
 
                 <div class="btn-group w-100" role="group">
                     <button class="btn btn-success" :disabled="!newItemLabel" type="submit">Add</button>
-                    <button class="btn btn-danger" type="reset" @click="isAddMode = false">Cancel</button>
+                    <button class="btn btn-danger" type="reset" @click="mode = Mode.View">Cancel</button>
                 </div>
             </form>
+        </div>
+
+        <div v-else-if="mode === Mode.Edit">
+            <button class="btn btn-success w-100" @click="mode = Mode.View">Finished</button>
         </div>
     </div>
 
     <div class="mt-2">
         <div v-if="items.length <= 0">No items to show!</div>
 
-        <div v-else class="form-check" v-for="(item, idx) in itemsToShow">
-            <input :id="'input-' + idx" class="form-check-input" type="checkbox" v-model="item.done" />
-            <label class="form-check-label" :for="'input-' + idx">{{ item.label }}</label>
+        <div v-else
+            class="form-check d-flex align-items-center"
+            :class="[
+                idx > 0 && 'pt-2',
+                idx > 0 && mode === Mode.View && 'border-top border-dark border-opacity-10'
+            ]"
+            v-for="(item, idx) in itemsToShow">
+            <input
+                :id="'input-' + idx"
+                class="form-check-input mb-1"
+                type="checkbox"
+                :disabled="mode === Mode.Edit"
+                v-model="item.done" />
+
+            <label v-if="mode !== Mode.Edit" class="form-control-plaintext ms-2" :for="'input-' + idx">
+                {{ item.label }}
+            </label>
+
+            <input v-else-if="mode === Mode.Edit" class="form-control ms-2" v-model="item.label" />
         </div>
 
-        <div v-if="hideCompleted" class="text-muted">
+        <div v-if="hideCompleted"
+            class="text-muted"
+            :class="itemsToShow.length > 0 && 'pt-2 border-top border-dark border-opacity-10'">
             {{ completedCount }} completed item(s)
         </div>
     </div>
