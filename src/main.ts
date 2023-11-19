@@ -24,7 +24,10 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
+
+  mainWindow.autoHideMenuBar = true
+  mainWindow.menuBarVisible = false
 };
 
 // This method will be called when Electron has finished

@@ -30,22 +30,25 @@ const addNewItem = (e: Event) => {
 <template>
     <h1>To-Do List</h1>
 
-    <button v-if="!isAddMode" @click="isAddMode = true">Add new item</button>
+    <button v-if="!isAddMode" class="btn btn-primary w-100" @click="isAddMode = true">Add new item</button>
 
     <div v-else>
         <form @submit="addNewItem">
-            <input ref="addInput" v-model="newItemLabel" />
-            <button :disabled="!newItemLabel" type="submit">Add</button>
-            <button type="reset" @click="isAddMode = false">Cancel</button>
+            <input class="mb-2 form-control" ref="addInput" v-model="newItemLabel" />
+
+            <div class="btn-group w-100" role="group">
+                <button class="btn btn-success" :disabled="!newItemLabel" type="submit">Add</button>
+                <button class="btn btn-danger" type="reset" @click="isAddMode = false">Cancel</button>
+            </div>
         </form>
     </div>
 
-    <div>
+    <div class="mt-2">
         <div v-if="items.length <= 0">No items!</div>
 
-        <div v-else v-for="(item, idx) in items">
-            <input :id="'input-' + idx" type="checkbox" v-model="item.done" />
-            <label :for="'input-' + idx">{{ item.label }}</label>
+        <div v-else class="form-check" v-for="(item, idx) in items">
+            <input :id="'input-' + idx" class="form-check-input" type="checkbox" v-model="item.done" />
+            <label class="form-check-label" :for="'input-' + idx">{{ item.label }}</label>
         </div>
     </div>
 </template>
