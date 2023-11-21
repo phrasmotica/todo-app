@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
 import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel } from './data'
@@ -47,11 +48,12 @@ const deleteExistingItem = (id: string) => {
 </script>
 
 <template>
-    <h1>To-Do List</h1>
+    <div class="d-flex justify-content-between">
+        <h1>To-Do List</h1>
 
-    <div class="form-check mt-2">
-        <input id="input-hidecompleted" class="form-check-input" type="checkbox" v-model="hideCompleted" />
-        <label class="form-check-label" for="input-hidecompleted">Hide completed items ({{ completedCount }})</label>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#settingsModal">
+            <i class="bi bi-gear"></i>
+        </button>
     </div>
 
     <hr />
@@ -110,4 +112,9 @@ const deleteExistingItem = (id: string) => {
             {{ completedCount }} completed item(s)
         </div>
     </div>
+
+    <SettingsModal id="settingsModal"
+        :hideCompleted="hideCompleted"
+        :completedCount="completedCount"
+        @setHideCompleted="v => hideCompleted = v" />
 </template>
