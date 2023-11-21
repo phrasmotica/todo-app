@@ -5,22 +5,23 @@ import NewListModal from './NewListModal.vue'
 import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
-import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel, getData, addList } from './data'
+import { addItem, swapItems, deleteItem, checkItem, setItemLabel, getData, addList } from './data'
 import { Mode, Priority, sortTodoLists } from './types'
 
-const lists = ref(getData().sort(sortTodoLists))
-const items = ref(getItems())
+const getLists = () => getData().sort(sortTodoLists)
 
+const lists = ref(getLists())
 const selectedListId = ref("")
 
 if (lists.value.length > 0) {
     selectedListId.value = lists.value[0].id
 }
 
-const relevantItems = computed(() => items.value.filter(i => i.listId === selectedListId.value))
-const itemsToShow = computed(() => hideCompleted.value ? relevantItems.value.filter(i => !i.done) : relevantItems.value)
+const list = computed(() => lists.value.find(l => l.id === selectedListId.value))
+const items = computed(() => list.value?.items || [])
+const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
 
-const completedCount = computed(() => relevantItems.value.filter(i => i.done).length)
+const completedCount = computed(() => items.value.filter(i => i.done).length)
 
 const mode = ref(Mode.View)
 const newItemLabel = ref("")
@@ -39,31 +40,36 @@ const addNewList = (name: string) => {
         const newList = addList(name)
         selectedListId.value = newList.id
 
-        lists.value = getData().sort(sortTodoLists)
+        lists.value = getLists()
     }
 }
 
 const addNewItem = () => {
     if (newItemLabel.value) {
-        items.value = addItem(selectedListId.value, newItemLabel.value, newItemPriority.value)
+        addItem(selectedListId.value, newItemLabel.value, newItemPriority.value)
+        lists.value = getLists()
         newItemLabel.value = ""
     }
 }
 
 const check = (id: string, checked: boolean) => {
-    items.value = checkItem(id, checked)
+    checkItem(selectedListId.value, id, checked)
+    lists.value = getLists()
 }
 
 const setLabel = (id: string, label: string) => {
-    items.value = setItemLabel(id, label)
+    setItemLabel(selectedListId.value, id, label)
+    lists.value = getLists()
 }
 
 const swap = (oldIndex: number, newIndex: number) => {
-    items.value = swapItems(oldIndex, newIndex)
+    swapItems(selectedListId.value, oldIndex, newIndex)
+    lists.value = getLists()
 }
 
 const deleteExistingItem = (id: string) => {
-    items.value = deleteItem(id)
+    deleteItem(selectedListId.value, id)
+    lists.value = getLists()
 }
 </script>
 

@@ -8,7 +8,16 @@ const setData = (data: TodoList[]) => {
     localStorage.setItem("data", JSON.stringify(data))
 }
 
-export const getItems = () => (JSON.parse(localStorage.getItem("items")) || []) as Item[]
+export const getList = (listId: string) => {
+    const data = getData()
+
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
+
+    return list
+}
 
 const setItems = (items: Item[]) => {
     localStorage.setItem("items", JSON.stringify(items))
@@ -20,7 +29,8 @@ export const addList = (name: string) => {
     const newList = {
         id: uuidv4(),
         name,
-    }
+        items: [],
+    } as TodoList
 
     lists.push(newList)
 
@@ -30,58 +40,97 @@ export const addList = (name: string) => {
 }
 
 export const addItem = (listId: string, label: string, priority: Priority) => {
-    const items = getItems()
+    const data = getData()
 
-    items.unshift({
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
+
+    const newItem = {
         id: uuidv4(),
-        listId,
         label,
         priority,
         done: false,
-    })
+    }
 
-    setItems(items)
+    list.items.unshift(newItem)
 
-    return items
+    setData(data)
+
+    return newItem
 }
 
-export const setItemLabel = (id: string, label: string) => {
-    const items = getItems()
+export const setItemLabel = (listId: string, id: string, label: string) => {
+    const data = getData()
 
-    items.find(i => i.id === id).label = label
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
 
-    setItems(items)
+    const item = list.items.find(i => i.id === id)
+    if (!list) {
+        throw `Item ${id} does not exist`
+    }
 
-    return items
+    item.label = label
+
+    setData(data)
+
+    return item
 }
 
-export const checkItem = (id: string, checked: boolean) => {
-    const items = getItems()
+export const checkItem = (listId: string, id: string, checked: boolean) => {
+    const data = getData()
 
-    items.find(i => i.id === id).done = checked
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
 
-    setItems(items)
+    const item = list.items.find(i => i.id === id)
+    if (!list) {
+        throw `Item ${id} does not exist`
+    }
 
-    return items
+    item.done = checked
+
+    setData(data)
+
+    return item
 }
 
-export const swapItems = (oldIndex: number, newIndex: number) => {
-    const items = getItems();
+export const swapItems = (listId: string, oldIndex: number, newIndex: number) => {
+    const data = getData()
+
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
+
+    const items = list.items;
 
     [items[oldIndex], items[newIndex]] = [items[newIndex], items[oldIndex]]
 
-    setItems(items)
+    setData(data)
 
-    return items
+    return true
 }
 
-export const deleteItem = (id: string) => {
-    const items = getItems()
-    const index = items.findIndex(i => i.id === id)
+export const deleteItem = (listId: string, id: string) => {
+    const data = getData()
 
-    items.splice(index, 1)
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
 
-    setItems(items)
+    const index = list.items.findIndex(i => i.id === id)
 
-    return items
+    list.items.splice(index, 1)
+
+    setData(data)
+
+    return true
 }
