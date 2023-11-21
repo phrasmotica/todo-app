@@ -19,7 +19,7 @@ const emit = defineEmits<{
                 </div>
 
                 <div class="modal-body">
-                    <div class="form-check mt-2">
+                    <div class="form-check">
                         <input
                             id="input-hidecompleted"
                             class="form-check-input"
