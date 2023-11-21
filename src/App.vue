@@ -21,7 +21,12 @@ const list = computed(() => lists.value.find(l => l.id === selectedListId.value)
 const items = computed(() => list.value?.items || [])
 const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
 
-const completedCount = computed(() => items.value.filter(i => i.done).length)
+const getCompletedCount = (listId: string) => {
+    const list = lists.value.find(l => l.id === listId)
+    return (list.items.filter(i => i.done) || []).length
+}
+
+const completedCount = computed(() => getCompletedCount(selectedListId.value))
 
 const mode = ref(Mode.View)
 const newItemLabel = ref("")
@@ -89,7 +94,9 @@ const deleteExistingItem = (id: string) => {
     </div>
 
     <select class="form-select" v-model="selectedListId">
-        <option v-for="list in lists" :value="list.id">{{ list.name }} ({{ list.items.length }})</option>
+        <option v-for="list in lists" :value="list.id">
+            {{ list.name }} ({{ getCompletedCount(list.id) }}/{{ list.items.length }})
+        </option>
     </select>
 
     <hr />
