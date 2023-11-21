@@ -6,9 +6,9 @@ import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
 import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel, getData, addList } from './data'
-import { Mode, Priority } from './types'
+import { Mode, Priority, sortTodoLists } from './types'
 
-const lists = ref(getData().sort((x, y) => x.name.localeCompare(y.name)))
+const lists = ref(getData().sort(sortTodoLists))
 const items = ref(getItems())
 
 const selectedListId = ref("")
@@ -36,7 +36,10 @@ watch(addInput, () => {
 
 const addNewList = (name: string) => {
     if (name) {
-        lists.value = addList(name)
+        const newList = addList(name)
+        selectedListId.value = newList.id
+
+        lists.value = getData().sort(sortTodoLists)
     }
 }
 
@@ -118,7 +121,7 @@ const deleteExistingItem = (id: string) => {
     </div>
 
     <div class="mt-2">
-        <div v-if="items.length <= 0">No items to show!</div>
+        <div v-if="itemsToShow.length <= 0">No items to show!</div>
 
         <div v-else>
             <TodoItem v-for="(item, idx) in itemsToShow"

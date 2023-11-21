@@ -17,14 +17,16 @@ const setItems = (items: Item[]) => {
 export const addList = (name: string) => {
     const lists = getData()
 
-    lists.unshift({
+    const newList = {
         id: uuidv4(),
         name,
-    })
+    }
+
+    lists.push(newList)
 
     setData(lists)
 
-    return lists
+    return newList
 }
 
 export const addItem = (listId: string, label: string, priority: Priority) => {
