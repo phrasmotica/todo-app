@@ -89,7 +89,7 @@ const deleteExistingItem = (id: string) => {
     </div>
 
     <select class="form-select" v-model="selectedListId">
-        <option v-for="list in lists" :value="list.id">{{ list.name }}</option>
+        <option v-for="list in lists" :value="list.id">{{ list.name }} ({{ list.items.length }})</option>
     </select>
 
     <hr />
