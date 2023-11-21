@@ -7,6 +7,7 @@ export interface TodoList {
 
 export interface Item {
     id: string
+    listId: string
     label: string
     done: boolean
     priority: Priority

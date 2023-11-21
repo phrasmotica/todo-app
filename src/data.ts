@@ -27,11 +27,12 @@ export const addList = (name: string) => {
     return lists
 }
 
-export const addItem = (label: string, priority: Priority) => {
+export const addItem = (listId: string, label: string, priority: Priority) => {
     const items = getItems()
 
     items.unshift({
         id: uuidv4(),
+        listId,
         label,
         priority,
         done: false,

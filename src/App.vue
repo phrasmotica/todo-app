@@ -8,10 +8,19 @@ import TodoItem from './TodoItem.vue'
 import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel, getData, addList } from './data'
 import { Mode, Priority } from './types'
 
-const lists = ref(getData())
+const lists = ref(getData().sort((x, y) => x.name.localeCompare(y.name)))
 const items = ref(getItems())
-const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
-const completedCount = computed(() => items.value.filter(i => i.done).length)
+
+const selectedListId = ref("")
+
+if (lists.value.length > 0) {
+    selectedListId.value = lists.value[0].id
+}
+
+const relevantItems = computed(() => items.value.filter(i => i.listId === selectedListId.value))
+const itemsToShow = computed(() => hideCompleted.value ? relevantItems.value.filter(i => !i.done) : relevantItems.value)
+
+const completedCount = computed(() => relevantItems.value.filter(i => i.done).length)
 
 const mode = ref(Mode.View)
 const newItemLabel = ref("")
@@ -33,7 +42,7 @@ const addNewList = (name: string) => {
 
 const addNewItem = () => {
     if (newItemLabel.value) {
-        items.value = addItem(newItemLabel.value, newItemPriority.value)
+        items.value = addItem(selectedListId.value, newItemLabel.value, newItemPriority.value)
         newItemLabel.value = ""
     }
 }
@@ -69,6 +78,10 @@ const deleteExistingItem = (id: string) => {
             </button>
         </div>
     </div>
+
+    <select class="form-select" v-model="selectedListId">
+        <option v-for="list in lists" :value="list.id">{{ list.name }}</option>
+    </select>
 
     <hr />
 
