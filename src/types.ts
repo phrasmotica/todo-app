@@ -1,5 +1,10 @@
 export enum Mode { View, Add, Edit }
 
+export interface TodoList {
+    id: string
+    name: string
+}
+
 export interface Item {
     id: string
     label: string

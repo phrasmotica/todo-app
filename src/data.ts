@@ -1,11 +1,30 @@
 import { v4 as uuidv4 } from "uuid"
 
-import { Item, Priority } from "./types"
+import { Item, Priority, TodoList } from "./types"
+
+export const getData = () => (JSON.parse(localStorage.getItem("data")) || []) as TodoList[]
+
+const setData = (data: TodoList[]) => {
+    localStorage.setItem("data", JSON.stringify(data))
+}
 
 export const getItems = () => (JSON.parse(localStorage.getItem("items")) || []) as Item[]
 
 const setItems = (items: Item[]) => {
     localStorage.setItem("items", JSON.stringify(items))
+}
+
+export const addList = (name: string) => {
+    const lists = getData()
+
+    lists.unshift({
+        id: uuidv4(),
+        name,
+    })
+
+    setData(lists)
+
+    return lists
 }
 
 export const addItem = (label: string, priority: Priority) => {

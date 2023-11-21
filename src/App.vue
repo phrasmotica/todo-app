@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import NewListModal from './NewListModal.vue'
 import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
-import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel } from './data'
+import { addItem, getItems, swapItems, deleteItem, checkItem, setItemLabel, getData, addList } from './data'
 import { Mode, Priority } from './types'
 
+const lists = ref(getData())
 const items = ref(getItems())
 const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
 const completedCount = computed(() => items.value.filter(i => i.done).length)
@@ -22,6 +24,12 @@ const addInput = ref<any>(null)
 watch(addInput, () => {
     addInput.value?.focus()
 })
+
+const addNewList = (name: string) => {
+    if (name) {
+        lists.value = addList(name)
+    }
+}
 
 const addNewItem = () => {
     if (newItemLabel.value) {
@@ -51,9 +59,15 @@ const deleteExistingItem = (id: string) => {
     <div class="d-flex justify-content-between">
         <h1>To-Do List</h1>
 
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#settingsModal">
-            <i class="bi bi-gear"></i>
-        </button>
+        <div class="d-flex align-items-center">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newListModal">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+
+            <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                <i class="bi bi-gear"></i>
+            </button>
+        </div>
     </div>
 
     <hr />
@@ -112,6 +126,9 @@ const deleteExistingItem = (id: string) => {
             {{ completedCount }} completed item(s)
         </div>
     </div>
+
+    <NewListModal id="newListModal"
+        @addNewList="addNewList" />
 
     <SettingsModal id="settingsModal"
         :hideCompleted="hideCompleted"
