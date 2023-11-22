@@ -1,37 +1,73 @@
 <script setup lang="ts">
+import { ref, watch } from "vue"
+import { TodoList } from "./types"
+
 const props = defineProps<{
+    list: TodoList
     hideCompleted: boolean
     completedCount: number
 }>()
 
 const emit = defineEmits<{
+    setName: [name: string]
     setHideCompleted: [hideCompleted: boolean]
 }>()
+
+const listName = ref(props.list.name)
+
+const modal = ref()
+
+watch(modal, () => {
+    if (modal.value) {
+        // TODO: cannot do this currently as it causes the saveSettings()
+        // function to emit the original list name...
+        // modal.value.addEventListener("hidden.bs.modal", () => {
+        //     listName.value = props.list.name
+        // })
+    }
+})
+
+const saveSettings = () => {
+    emit("setName", listName.value)
+}
 </script>
 
 <template>
-    <div class="modal" tabindex="-1">
+    <div ref="modal" class="modal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Settings</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="form-check">
-                        <input
-                            id="input-hidecompleted"
-                            class="form-check-input"
-                            type="checkbox"
-                            :value="props.hideCompleted"
-                            @change="(e: any) => emit('setHideCompleted', e.target.checked)" />
-
-                        <label class="form-check-label" for="input-hidecompleted">
-                            Hide completed items ({{ props.completedCount }})
-                        </label>
+                <form @submit.prevent="saveSettings">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Settings - {{ listName }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
+
+                    <div class="modal-body">
+                        <div>
+                            <label class="form-label" for="input-editname">Name</label>
+                            <input id="input-editname" class="form-control" ref="editNameInput" placeholder="List name" v-model="listName" />
+                        </div>
+
+                        <div class="form-check mt-2">
+                            <input
+                                id="input-hidecompleted"
+                                class="form-check-input"
+                                type="checkbox"
+                                :value="props.hideCompleted"
+                                @change="(e: any) => emit('setHideCompleted', e.target.checked)" />
+
+                            <label class="form-check-label" for="input-hidecompleted">
+                                Hide completed items ({{ props.completedCount }})
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" :disabled="!listName" data-bs-dismiss="modal">
+                            Save
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

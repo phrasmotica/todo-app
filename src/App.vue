@@ -5,7 +5,7 @@ import NewListModal from './NewListModal.vue'
 import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
-import { addItem, swapItems, deleteItem, checkItem, setItemLabel, getData, addList } from './data'
+import { addItem, swapItems, deleteItem, checkItem, setItemLabel, setListName, getData, addList } from './data'
 import { Mode, Priority, sortTodoLists } from './types'
 
 const getLists = () => getData().sort(sortTodoLists)
@@ -44,6 +44,14 @@ const addNewList = (name: string) => {
     if (name) {
         const newList = addList(name)
         selectedListId.value = newList.id
+
+        lists.value = getLists()
+    }
+}
+
+const setExistingListName = (id: string, name: string) => {
+    if (name) {
+        setListName(id, name)
 
         lists.value = getLists()
     }
@@ -160,7 +168,9 @@ const deleteExistingItem = (id: string) => {
         @addNewList="addNewList" />
 
     <SettingsModal id="settingsModal"
+        :list="list"
         :hideCompleted="hideCompleted"
         :completedCount="completedCount"
+        @setName="n => setExistingListName(list.id, n)"
         @setHideCompleted="v => hideCompleted = v" />
 </template>

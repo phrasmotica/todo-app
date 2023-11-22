@@ -19,10 +19,6 @@ export const getList = (listId: string) => {
     return list
 }
 
-const setItems = (items: Item[]) => {
-    localStorage.setItem("items", JSON.stringify(items))
-}
-
 export const addList = (name: string) => {
     const lists = getData()
 
@@ -37,6 +33,21 @@ export const addList = (name: string) => {
     setData(lists)
 
     return newList
+}
+
+export const setListName = (listId: string, name: string) => {
+    const data = getData()
+
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
+
+    list.name = name
+
+    setData(data)
+
+    return list
 }
 
 export const addItem = (listId: string, label: string, priority: Priority) => {
