@@ -35,6 +35,21 @@ export const addList = (name: string) => {
     return newList
 }
 
+export const deleteList = (id: string) => {
+    const lists = getData()
+
+    const index = lists.findIndex(l => l.id === id)
+    if (index >= 0) {
+        lists.splice(index, 1)
+
+        setData(lists)
+
+        return true
+    }
+
+    return false
+}
+
 export const setListName = (listId: string, name: string) => {
     const data = getData()
 

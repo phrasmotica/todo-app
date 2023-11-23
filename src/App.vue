@@ -6,7 +6,7 @@ import NewListModal from './NewListModal.vue'
 import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
-import { addItem, swapItems, deleteItem, checkItem, moveItems, setItemLabel, setListName, getData, addList } from './data'
+import { addItem, swapItems, deleteItem, deleteList, checkItem, moveItems, setItemLabel, setListName, getData, addList } from './data'
 import { Mode, Priority, getCompletedCount, sortTodoLists } from './types'
 
 const getLists = () => getData().sort(sortTodoLists)
@@ -50,6 +50,19 @@ const addNewList = (name: string) => {
 const setExistingListName = (id: string, name: string) => {
     if (name) {
         setListName(id, name)
+
+        lists.value = getLists()
+    }
+}
+
+const deleteSelectedList = (id: string) => {
+    // prevent deletion of sole list
+    if (lists.value.length > 1 && id) {
+        deleteList(id)
+
+        const selectedListIndex = lists.value.findIndex(l => l.id === id)
+        const newSelectedList = lists.value[Math.max(0, selectedListIndex - 1)]
+        selectedListId.value = newSelectedList.id
 
         lists.value = getLists()
     }
@@ -213,5 +226,6 @@ const moveSelectedItems = (sourceListId: string, destinationListId: string) => {
         :hideCompleted="hideCompleted"
         :completedCount="completedCount"
         @setName="n => setExistingListName(list.id, n)"
-        @setHideCompleted="v => hideCompleted = v" />
+        @setHideCompleted="v => hideCompleted = v"
+        @deleteList="() => deleteSelectedList(list.id)" />
 </template>

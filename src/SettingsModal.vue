@@ -11,6 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     setName: [name: string]
     setHideCompleted: [hideCompleted: boolean]
+    deleteList: []
 }>()
 
 const listName = ref(props.list.name)
@@ -23,6 +24,11 @@ const canSave = computed(() => listName.value && listName.value !== props.list.n
 
 const saveSettings = () => {
     emit("setName", listName.value)
+}
+
+const deleteList = () => {
+    // TODO: require some confirmation before doing this
+    emit("deleteList")
 }
 
 onMounted(() => {
@@ -69,6 +75,10 @@ onMounted(() => {
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary" :disabled="!canSave" data-bs-dismiss="modal">
                             Save
+                        </button>
+
+                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteList">
+                            Delete List
                         </button>
                     </div>
                 </form>
