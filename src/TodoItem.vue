@@ -6,12 +6,14 @@ import { Item, Mode } from './types'
 const props = defineProps<{
     mode: Mode
     item: Item
+    selected: boolean
     index: number
     total: number
 }>()
 
 const emit = defineEmits<{
     check: [checked: boolean]
+    select: [selected: boolean]
     setLabel: [label: string]
     moveUp: []
     moveDown: []
@@ -20,14 +22,17 @@ const emit = defineEmits<{
 
 const isEditMode = computed(() => props.mode === Mode.Edit)
 
-const id = 'input-' + props.item.id
+const id = 'input-check-' + props.item.id
+const selectId = 'input-select-' + props.item.id
 </script>
 
 <template>
     <div class="todo-item ps-2 my-1" :class="!isEditMode && props.item.priority">
         <div class="form-check d-flex align-items-center">
-            <input :id="id" class="form-check-input mb-1 flex-shrink-0" type="checkbox" :disabled="isEditMode"
+            <input v-if="!isEditMode" :id="id" class="form-check-input mb-1 flex-shrink-0" type="checkbox"
                 v-model="props.item.done" @change="(e: any) => emit('check', e.target.checked)" />
+            <input v-else :id="selectId" class="form-check-input mb-1 flex-shrink-0" type="checkbox"
+                v-model="props.selected" @change="(e: any) => emit('select', e.target.checked)" />
 
             <label v-if="!isEditMode"
                 :for="id"

@@ -145,3 +145,28 @@ export const deleteItem = (listId: string, id: string) => {
 
     return true
 }
+
+export const moveItems = (sourceListId: string, destinationListId: string, items: string[]) => {
+    const data = getData()
+
+    const sourceList = data.find(l => l.id === sourceListId)
+    if (!sourceList) {
+        throw `List ${sourceListId} does not exist`
+    }
+
+    const destinationList = data.find(l => l.id === destinationListId)
+    if (!destinationList) {
+        throw `List ${destinationListId} does not exist`
+    }
+
+    for (const id of items) {
+        const sourceItem = sourceList.items.find(i => i.id === id)
+        destinationList.items.push(sourceItem)
+    }
+
+    sourceList.items = sourceList.items.filter(i => !items.includes(i.id))
+
+    setData(data)
+
+    return true
+}

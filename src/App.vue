@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import MoveItemsModal from "./MoveItemsModal.vue"
 import NewListModal from './NewListModal.vue'
 import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
-import { addItem, swapItems, deleteItem, checkItem, setItemLabel, setListName, getData, addList } from './data'
-import { Mode, Priority, sortTodoLists } from './types'
+import { addItem, swapItems, deleteItem, checkItem, moveItems, setItemLabel, setListName, getData, addList } from './data'
+import { Mode, Priority, getCompletedCount, sortTodoLists } from './types'
 
 const getLists = () => getData().sort(sortTodoLists)
 
@@ -21,16 +22,13 @@ const list = computed(() => lists.value.find(l => l.id === selectedListId.value)
 const items = computed(() => list.value?.items || [])
 const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
 
-const getCompletedCount = (listId: string) => {
-    const list = lists.value.find(l => l.id === listId)
-    return (list.items.filter(i => i.done) || []).length
-}
-
-const completedCount = computed(() => getCompletedCount(selectedListId.value))
+const completedCount = computed(() => getCompletedCount(list.value))
 
 const mode = ref(Mode.View)
 const newItemLabel = ref("")
 const newItemPriority = ref(Priority.Medium)
+
+const selectedItems = ref<string[]>([])
 
 const hideCompleted = ref(false)
 
@@ -70,6 +68,22 @@ const check = (id: string, checked: boolean) => {
     lists.value = getLists()
 }
 
+const select = (id: string, selected: boolean) => {
+    const newSelectedItems = [...selectedItems.value]
+
+    const idx = newSelectedItems.findIndex(x => x === id)
+    if (selected) {
+        if (idx < 0) {
+            newSelectedItems.push(id)
+        }
+    }
+    else if (idx >= 0) {
+        newSelectedItems.splice(idx, 1)
+    }
+
+    selectedItems.value = newSelectedItems
+}
+
 const setLabel = (id: string, label: string) => {
     setItemLabel(selectedListId.value, id, label)
     lists.value = getLists()
@@ -83,6 +97,22 @@ const swap = (oldIndex: number, newIndex: number) => {
 const deleteExistingItem = (id: string) => {
     deleteItem(selectedListId.value, id)
     lists.value = getLists()
+}
+
+const moveSelectedItems = (sourceListId: string, destinationListId: string) => {
+    const itemsToMove = []
+
+    // this ensures the item ordering is preserved but is not very efficient
+    for (const item of items.value) {
+        if (selectedItems.value.includes(item.id)) {
+            itemsToMove.push(item.id)
+        }
+    }
+
+    moveItems(sourceListId, destinationListId, itemsToMove)
+
+    lists.value = getLists()
+    selectedItems.value = []
 }
 </script>
 
@@ -101,9 +131,9 @@ const deleteExistingItem = (id: string) => {
         </div>
     </div>
 
-    <select class="form-select" v-model="selectedListId">
+    <select class="form-select" :disabled="mode !== Mode.View" v-model="selectedListId">
         <option v-for="list in lists" :value="list.id">
-            {{ list.name }} ({{ getCompletedCount(list.id) }}/{{ list.items.length }})
+            {{ list.name }} ({{ getCompletedCount(list) }}/{{ list.items.length }})
         </option>
     </select>
 
@@ -136,8 +166,12 @@ const deleteExistingItem = (id: string) => {
             </form>
         </div>
 
-        <div v-else-if="mode === Mode.Edit">
-            <button class="btn btn-success w-100" @click="mode = Mode.View">Finished</button>
+        <div v-else-if="mode === Mode.Edit" class="btn-group w-100" role="group">
+            <button class="btn btn-warning" :disabled="lists.length <= 1 || selectedItems.length <= 0" data-bs-toggle="modal" data-bs-target="#moveItemsModal">
+                Move selected items
+            </button>
+
+            <button class="btn btn-success" @click="mode = Mode.View">Finished</button>
         </div>
     </div>
 
@@ -148,9 +182,11 @@ const deleteExistingItem = (id: string) => {
             <TodoItem v-for="(item, idx) in itemsToShow"
                 :mode="mode"
                 :item="item"
+                :selected="selectedItems.includes(item.id)"
                 :index="idx"
                 :total="itemsToShow.length"
                 @check="c => check(item.id, c)"
+                @select="s => select(item.id, s)"
                 @setLabel="l => setLabel(item.id, l)"
                 @moveUp="swap(idx, idx - 1)"
                 @moveDown="swap(idx, idx + 1)"
@@ -166,6 +202,11 @@ const deleteExistingItem = (id: string) => {
 
     <NewListModal id="newListModal"
         @addNewList="addNewList" />
+
+    <MoveItemsModal id="moveItemsModal"
+        :lists="lists.filter(l => l.id !== selectedListId)"
+        :items="selectedItems"
+        @move="destId => moveSelectedItems(selectedListId, destId)" />
 
     <SettingsModal id="settingsModal"
         :list="list"

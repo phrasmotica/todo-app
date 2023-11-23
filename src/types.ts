@@ -6,6 +6,10 @@ export interface TodoList {
     items: Item[]
 }
 
+export const getCompletedCount = (list: TodoList) => {
+    return (list.items.filter(i => i.done) || []).length
+}
+
 export const sortTodoLists = (x: TodoList, y: TodoList) => x.name.localeCompare(y.name)
 
 export interface Item {
