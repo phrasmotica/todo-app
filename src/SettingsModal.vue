@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { TodoList } from "./types"
 
 const props = defineProps<{
@@ -18,6 +18,8 @@ const listName = ref(props.list.name)
 watch(props, () => {
     listName.value = props.list.name
 })
+
+const canSave = computed(() => listName.value && listName.value !== props.list.name)
 
 const saveSettings = () => {
     emit("setName", listName.value)
@@ -40,7 +42,7 @@ onMounted(() => {
             <div class="modal-content">
                 <form @submit.prevent="saveSettings">
                     <div class="modal-header">
-                        <h5 class="modal-title">Settings - {{ listName }}</h5>
+                        <h5 class="modal-title">Settings - {{ props.list.name }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
@@ -65,7 +67,7 @@ onMounted(() => {
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" :disabled="!listName" data-bs-dismiss="modal">
+                        <button type="submit" class="btn btn-primary" :disabled="!canSave" data-bs-dismiss="modal">
                             Save
                         </button>
                     </div>
