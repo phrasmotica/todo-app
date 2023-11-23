@@ -15,6 +15,10 @@ const emit = defineEmits<{
 
 const listName = ref(props.list.name)
 
+watch(props, () => {
+    listName.value = props.list.name
+})
+
 const modal = ref()
 
 watch(modal, () => {
