@@ -193,7 +193,7 @@ const moveSelectedItems = (sourceListId: string, destinationListId: string) => {
     </div>
 
     <div class="mt-2">
-        <div v-if="itemsToShow.length <= 0">No items to show!</div>
+        <div v-if="!list.settings.hideCompleted && itemsToShow.length <= 0">No items to show!</div>
 
         <div v-else>
             <TodoItem v-for="(item, idx) in itemsToShow"
