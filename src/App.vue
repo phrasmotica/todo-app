@@ -61,10 +61,10 @@ const deleteSelectedList = (id: string) => {
         deleteList(id)
 
         const selectedListIndex = lists.value.findIndex(l => l.id === id)
+        lists.value = getLists()
+
         const newSelectedList = lists.value[Math.max(0, selectedListIndex - 1)]
         selectedListId.value = newSelectedList.id
-
-        lists.value = getLists()
     }
 }
 
