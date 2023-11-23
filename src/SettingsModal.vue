@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { onMounted, ref, watch } from "vue"
 import { TodoList } from "./types"
 
 const props = defineProps<{
@@ -19,25 +19,23 @@ watch(props, () => {
     listName.value = props.list.name
 })
 
-const modal = ref()
-
-watch(modal, () => {
-    if (modal.value) {
-        // TODO: cannot do this currently as it causes the saveSettings()
-        // function to emit the original list name...
-        // modal.value.addEventListener("hidden.bs.modal", () => {
-        //     listName.value = props.list.name
-        // })
-    }
-})
-
 const saveSettings = () => {
     emit("setName", listName.value)
 }
+
+onMounted(() => {
+    const modalElement = document.getElementById("settingsModal")
+
+    // should do this on hidden.bs.modal, but that causes issues with
+    // the current save button. We can address that later
+    modalElement?.addEventListener("shown.bs.modal", () => {
+        listName.value = props.list.name
+    })
+})
 </script>
 
 <template>
-    <div ref="modal" class="modal" tabindex="-1">
+    <div id="settingsModal" class="modal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form @submit.prevent="saveSettings">
