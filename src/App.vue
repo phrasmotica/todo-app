@@ -6,7 +6,7 @@ import NewListModal from './NewListModal.vue'
 import SettingsModal from './SettingsModal.vue'
 import TodoItem from './TodoItem.vue'
 
-import { addItem, swapItems, deleteItem, deleteList, checkItem, moveItems, setItemLabel, setListName, getData, addList } from './data'
+import { addItem, swapItems, deleteItem, deleteList, checkItem, moveItems, setItemLabel, setListName, getData, addList, setHideCompleted } from './data'
 import { Mode, Priority, getCompletedCount, sortTodoLists } from './types'
 
 const getLists = () => getData().sort(sortTodoLists)
@@ -20,7 +20,7 @@ if (lists.value.length > 0) {
 
 const list = computed(() => lists.value.find(l => l.id === selectedListId.value))
 const items = computed(() => list.value?.items || [])
-const itemsToShow = computed(() => hideCompleted.value ? items.value.filter(i => !i.done) : items.value)
+const itemsToShow = computed(() => list.value.settings.hideCompleted ? items.value.filter(i => !i.done) : items.value)
 
 const completedCount = computed(() => getCompletedCount(list.value))
 
@@ -29,8 +29,6 @@ const newItemLabel = ref("")
 const newItemPriority = ref(Priority.Medium)
 
 const selectedItems = ref<string[]>([])
-
-const hideCompleted = ref(false)
 
 const addInput = ref<any>(null)
 
@@ -53,6 +51,12 @@ const setExistingListName = (id: string, name: string) => {
 
         lists.value = getLists()
     }
+}
+
+const setExistingListHideCompleted = (id: string, hideCompleted: boolean) => {
+    setHideCompleted(id, hideCompleted)
+
+    lists.value = getLists()
 }
 
 const deleteSelectedList = (id: string) => {
@@ -206,7 +210,7 @@ const moveSelectedItems = (sourceListId: string, destinationListId: string) => {
                 @delete="deleteExistingItem(item.id)" />
         </div>
 
-        <div v-if="hideCompleted"
+        <div v-if="list.settings.hideCompleted"
             class="text-muted"
             :class="itemsToShow.length > 0 && 'pt-2 border-top border-dark border-opacity-10'">
             {{ completedCount }} completed item(s)
@@ -223,9 +227,8 @@ const moveSelectedItems = (sourceListId: string, destinationListId: string) => {
 
     <SettingsModal id="settingsModal"
         :list="list"
-        :hideCompleted="hideCompleted"
         :completedCount="completedCount"
         @setName="n => setExistingListName(list.id, n)"
-        @setHideCompleted="v => hideCompleted = v"
+        @setHideCompleted="h => setExistingListHideCompleted(list.id, h)"
         @deleteList="() => deleteSelectedList(list.id)" />
 </template>

@@ -4,7 +4,6 @@ import { TodoList } from "./types"
 
 const props = defineProps<{
     list: TodoList
-    hideCompleted: boolean
     completedCount: number
 }>()
 
@@ -15,10 +14,12 @@ const emit = defineEmits<{
 }>()
 
 const listName = ref(props.list.name)
+const settings = ref(props.list.settings)
 const showDeleteConfirmation = ref(false)
 
 watch(props, () => {
     listName.value = props.list.name
+    settings.value = props.list.settings
 })
 
 const canSave = computed(() => listName.value && listName.value !== props.list.name)
@@ -72,7 +73,7 @@ onMounted(() => {
                                 id="input-hidecompleted"
                                 class="form-check-input"
                                 type="checkbox"
-                                :value="props.hideCompleted"
+                                v-model="settings.hideCompleted"
                                 @change="(e: any) => emit('setHideCompleted', e.target.checked)" />
 
                             <label class="form-check-label" for="input-hidecompleted">

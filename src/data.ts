@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 
-import { Item, Priority, TodoList } from "./types"
+import { Priority, TodoList } from "./types"
 
 export const getData = () => (JSON.parse(localStorage.getItem("data")) || []) as TodoList[]
 
@@ -26,6 +26,9 @@ export const addList = (name: string) => {
         id: uuidv4(),
         name,
         items: [],
+        settings: {
+            hideCompleted: false
+        },
     } as TodoList
 
     lists.push(newList)
@@ -59,6 +62,21 @@ export const setListName = (listId: string, name: string) => {
     }
 
     list.name = name
+
+    setData(data)
+
+    return list
+}
+
+export const setHideCompleted = (listId: string, hideCompleted: boolean) => {
+    const data = getData()
+
+    const list = data.find(l => l.id === listId)
+    if (!list) {
+        throw `List ${listId} does not exist`
+    }
+
+    list.settings.hideCompleted = hideCompleted
 
     setData(data)
 
