@@ -14,18 +14,19 @@ const emit = defineEmits<{
 }>()
 
 const listName = ref(props.list.name)
-const settings = ref(props.list.settings)
+const hideCompleted = ref(props.list.settings.hideCompleted)
 const showDeleteConfirmation = ref(false)
 
 watch(props, () => {
     listName.value = props.list.name
-    settings.value = props.list.settings
+    hideCompleted.value = props.list.settings.hideCompleted
 })
 
-const canSave = computed(() => listName.value && listName.value !== props.list.name)
+const canSave = computed(() => hideCompleted.value !== props.list.settings.hideCompleted || (listName.value && listName.value !== props.list.name))
 
 const saveSettings = () => {
     emit("setName", listName.value)
+    emit("setHideCompleted", hideCompleted.value)
 }
 
 const confirmDeleteList = () => {
@@ -73,8 +74,7 @@ onMounted(() => {
                                 id="input-hidecompleted"
                                 class="form-check-input"
                                 type="checkbox"
-                                v-model="settings.hideCompleted"
-                                @change="(e: any) => emit('setHideCompleted', e.target.checked)" />
+                                v-model="hideCompleted" />
 
                             <label class="form-check-label" for="input-hidecompleted">
                                 Hide completed items ({{ props.completedCount }})
