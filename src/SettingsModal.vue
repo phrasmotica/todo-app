@@ -15,6 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const listName = ref(props.list.name)
+const showDeleteConfirmation = ref(false)
 
 watch(props, () => {
     listName.value = props.list.name
@@ -26,9 +27,13 @@ const saveSettings = () => {
     emit("setName", listName.value)
 }
 
+const confirmDeleteList = () => {
+    showDeleteConfirmation.value = true
+}
+
 const deleteList = () => {
-    // TODO: require some confirmation before doing this
     emit("deleteList")
+    showDeleteConfirmation.value = false
 }
 
 onMounted(() => {
@@ -38,6 +43,10 @@ onMounted(() => {
     // the current save button. We can address that later
     modalElement?.addEventListener("shown.bs.modal", () => {
         listName.value = props.list.name
+    })
+
+    modalElement?.addEventListener("hidden.bs.modal", () => {
+        showDeleteConfirmation.value = false
     })
 })
 </script>
@@ -77,8 +86,11 @@ onMounted(() => {
                             Save
                         </button>
 
-                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteList">
+                        <button v-if="!showDeleteConfirmation" type="button" class="btn btn-danger" @click="confirmDeleteList">
                             Delete List
+                        </button>
+                        <button v-else type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteList">
+                            Are you sure?
                         </button>
                     </div>
                 </form>
