@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from "uuid"
 
 import { Priority, TodoList } from "./types"
 
+// TODO: store data in local storage using Pinia
+
 export const getData = () => (JSON.parse(localStorage.getItem("data")) || []) as TodoList[]
 
 const setData = (data: TodoList[]) => {
